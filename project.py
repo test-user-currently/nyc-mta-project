@@ -1,8 +1,16 @@
 from google.transit import gtfs_realtime_pb2
+# import gtfs_realtime_pb2
 import requests
 
-api_key = 'API_Key'
+# get API key from MTA
+api_key = 'api_key'
 
-mta_info = requests.get('http://datamine.mta.info/mta_esi.php?key=' + api_key + '&feed_id=16')
+# data for BDFM line
+feed = gtfs_realtime_pb2.FeedMessage()
+response = requests.get('http://datamine.mta.info/mta_esi.php?key=' + api_key + '&feed_id=16')
+feed.ParseFromString(response.content)
 
-print feed.ParseFromString(mta_info.content)
+print str(feed)
+
+
+
