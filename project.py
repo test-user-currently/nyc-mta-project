@@ -37,7 +37,7 @@ stops_file.close()
 
 # stop_times data
 # trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled
-stop_times_file = open('mta-data/stop_times.txt', 'r')
+stop_times_file = open('mta-data/TEST_stop_times.txt', 'r') # !!!!!!!!!!!!!!!!!!! remember to change this to not be the shorter, test file
 stop_times = stop_times_file.read()
 stop_times_file.close()
 
@@ -66,21 +66,46 @@ trips_file.close()
 # - station name
 # - time enter/leave station
 
-
-# uses stops.txt
-def generate_stopsNameToID(data): # --------- FIX BC SOME NAMES ARE DIFF BUT SAME STOP --------
+def prep_data(data, idx1, idx2, isValList):
     new_data = data.split("\n")[1:-1]
     data_len = len(new_data)
 
     for idx in range(data_len):
         new_data[idx] = new_data[idx].split(",")
-    stops_id = map(lambda x: x[0], new_data)
-    stops_name = map(lambda x: x[2], new_data)
+
+    my_keys = map(lambda x: x[idx1], new_data)
+    my_values = map(lambda x: x[idx2], new_data)
 
     ret_dict = {}
-    for idx in range(data_len):
-        ret_dict[stops_name[idx]] = stops_id[idx]
+    if isValList:
+        for idx in range(data_len):
+            if my_keys[idx] in ret_dict.keys():
+                ret_dict[my_keys[idx]].append(my_values[idx])
+            else:
+                ret_dict[my_keys[idx]] = [my_values[idx]]
+    else:
+        for idx in range(data_len):
+            ret_dict[my_keys[idx]] = my_values[idx]
+
     return ret_dict
+
+
+# uses stops.txt
+def generate_stopsNameToID(data): # --------- FIX BC SOME NAMES ARE DIFF BUT SAME STOP --------
+    return prep_data(data, 2, 0, True)
+
+    # new_data = data.split("\n")[1:-1]
+    # data_len = len(new_data)
+    #
+    # for idx in range(data_len):
+    #     new_data[idx] = new_data[idx].split(",")
+    # stops_id = map(lambda x: x[0], new_data)
+    # stops_name = map(lambda x: x[2], new_data)
+    #
+    # ret_dict = {}
+    # for idx in range(data_len):
+    #     ret_dict[stops_name[idx]] = stops_id[idx]
+    # return ret_dict
 
 # {trainLetter: [{stationName : (time enter, time leave)}, {stationName : (time enter, time leave)}], trainLetter: [{stationName : (time enter, time leave)}]}
 
@@ -112,21 +137,44 @@ def generate_linesToTrains(data):
 
 # uses trips.txt
 def generate_tripIDtoTrain(data):
-    new_data = data.split("\n")[1:-1]
-    data_len = len(new_data)
+    return prep_data(data, 2, 0, False)
 
-    for idx in range(data_len):
-        new_data[idx] = new_data[idx].split(",")
+    # new_data = data.split("\n")[1:-1]
+    # data_len = len(new_data)
+    #
+    # for idx in range(data_len):
+    #     new_data[idx] = new_data[idx].split(",")
+    #
+    # trip_id = map(lambda x: x[2], new_data)
+    # train = map(lambda x: x[0], new_data)
+    #
+    # ret_dict = {}
+    # for idx in range(data_len):
+    #     ret_dict[trip_id[idx]] = train[idx]
+    #
+    # return ret_dict
 
-    trip_id = map(lambda x: x[2], new_data)
-    train = map(lambda x: x[0], new_data)
+# uses stop_times.txt
+def generate_tripIDtoStops(data):
+    return prep_data(data, 0, 3, True)
 
-    ret_dict = {}
-    for idx in range(data_len):
-        ret_dict[trip_id[idx]] = train[idx]
-
-    return ret_dict
-
+    # new_data = data.split("\n")[1:-1]
+    # data_len = len(new_data)
+    #
+    # for idx in range(data_len):
+    #     new_data[idx] = new_data[idx].split(",")
+    #
+    # trip_id = map(lambda x: x[0], new_data)
+    # stop_id = map(lambda x: x[3], new_data)
+    #
+    # ret_dict = {}
+    # for idx in range(data_len):
+    #     if trip_id[idx] in ret_dict.keys():
+    #         ret_dict[trip_id[idx]].append(stop_id[idx])
+    #     else:
+    #         ret_dict[trip_id[idx]] = [stop_id[idx]]
+    #
+    # return ret_dict
 
 
 def generate_trainstToStops(data):
@@ -138,9 +186,11 @@ def generate_trainstToStops(data):
 
 # --------- DATA TO USE --------- #
 
-stops_name_to_id = generate_stopsNameToID(stops) # mapping from stop_name (string) -> stop_id (string)
+stops_name_to_id = generate_stopsNameToID(stops) # mapping from stop_name (string) -> stop_id(s) (list of strings)
 lines_to_trains = generate_linesToTrains(routes) # mapping from line names (string) -> trains (list of strings)
+
 tripID_to_train = generate_tripIDtoTrain(trips) # mapping from trip_id (string) -> train (string)
+tripID_to_stops = generate_tripIDtoStops(stop_times) # mapping from trip_id (string) -> stops (list of strings)
 
 trains_to_stops = {} # mapping from trains (string) -> stop names (list of strings)
 
@@ -149,7 +199,7 @@ trains_to_stops = {} # mapping from trains (string) -> stop names (list of strin
 
 
 # --------- TESTS --------#
-# print tripID_to_train
+print tripID_to_stops
 
 # print dict_BDFM
 # print dict_BDFM.get("entity")[0]
