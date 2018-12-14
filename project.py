@@ -37,7 +37,7 @@ stops_file.close()
 
 # stop_times data
 # trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled
-stop_times_file = open('mta-data/TEST_stop_times.txt', 'r') # !!!!!!!!!!!!!!!!!!! remember to change this to not be the shorter, test file
+stop_times_file = open('mta-data/stop_times.txt', 'r') # !!!!!!!!!!!!!!!!!!! remember to change this to not be the shorter, test file
 stop_times = stop_times_file.read()
 stop_times_file.close()
 
@@ -66,6 +66,7 @@ trips_file.close()
 # - station name
 # - time enter/leave station
 
+# preps the data to be parsed through after we get them from the txt files
 def prep_data(data, idx1, idx2, isValList):
     new_data = data.split("\n")[1:-1]
     data_len = len(new_data)
@@ -136,7 +137,7 @@ def generate_linesToTrains(data):
     return ret_dict
 
 # uses trips.txt
-def generate_tripIDtoTrain(data):
+def generate_tripIDtoTrain(data): # TODO CHECK IF THIS IS REALLY JUST A ONE-TO-ONE RELATIONSHIP
     return prep_data(data, 2, 0, False)
 
     # new_data = data.split("\n")[1:-1]
@@ -177,8 +178,12 @@ def generate_tripIDtoStops(data):
     # return ret_dict
 
 
-def generate_trainstToStops(data):
-    return True
+def generate_trainsToStops(trip2train, trip2stops): # TODO: does N/S stops matter bc trains will go both ways anyways? or maybe take into account the construction changes?
+    trips = trip2train.keys() # doesn't matter which you get from bc they are the same trip_id's
+    ret_dict = {}
+    for trip in trips:
+        ret_dict[trip2train[trip]] = trip2stops[trip]
+    return ret_dict
 
 # --------- ORGANIZING DATA (END) --------- #
 
@@ -191,15 +196,15 @@ lines_to_trains = generate_linesToTrains(routes) # mapping from line names (stri
 
 tripID_to_train = generate_tripIDtoTrain(trips) # mapping from trip_id (string) -> train (string)
 tripID_to_stops = generate_tripIDtoStops(stop_times) # mapping from trip_id (string) -> stops (list of strings)
-
-trains_to_stops = {} # mapping from trains (string) -> stop names (list of strings)
+trains_to_stops = generate_trainsToStops(tripID_to_train, tripID_to_stops) # mapping from trains (string) -> stop names (list of strings)
 
 # --------- DATA TO USE (END) --------- #
 
 
 
 # --------- TESTS --------#
-print tripID_to_stops
+# print trains_to_stops
+# print tripID_to_train
 
 # print dict_BDFM
 # print dict_BDFM.get("entity")[0]
