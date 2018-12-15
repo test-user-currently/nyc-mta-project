@@ -192,6 +192,7 @@ def generate_trainsToStops(trip2train, trip2stops): # TODO: does N/S stops matte
 # --------- DATA TO USE --------- #
 
 stops_name_to_id = generate_stopsNameToID(stops) # mapping from stop_name (string) -> stop_id(s) (list of strings)
+
 lines_to_trains = generate_linesToTrains(routes) # mapping from line names (string) -> trains (list of strings)
 
 tripID_to_train = generate_tripIDtoTrain(trips) # mapping from trip_id (string) -> train (string)
@@ -199,6 +200,15 @@ tripID_to_stops = generate_tripIDtoStops(stop_times) # mapping from trip_id (str
 trains_to_stops = generate_trainsToStops(tripID_to_train, tripID_to_stops) # mapping from trains (string) -> stop names (list of strings)
 
 # --------- DATA TO USE (END) --------- #
+
+
+
+# --------- USING THE DATA -------- #
+
+
+# --------- USING THE DATA (END) -------- #
+
+
 
 
 
